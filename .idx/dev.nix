@@ -29,19 +29,29 @@
         docker run --name ubuntu-novnc \
           --shm-size 1g -d \
           --cap-add=SYS_ADMIN \
-          -p 8080:3000 \
+          -p 8080:10000 \
           -e VNC_PASSWD=password \
-          -e PORT=3000 \
+          -e PORT=10000 \
           -e AUDIO_PORT=1699 \
           -e WEBSOCKIFY_PORT=6900 \
           -e VNC_PORT=5900 \
           -e SCREEN_WIDTH=1024 \
           -e SCREEN_HEIGHT=768 \
           -e SCREEN_DEPTH=24 \
-          lscr.io/linuxserver/chromium:latest
+          thuonghai2711/ubuntu-novnc-pulseaudio:22.04
       else
         docker start ubuntu-novnc || true
       fi
+
+      # Install Chrome inside the container (sudo only here)
+      docker exec -it ubuntu-novnc bash -lc "
+        sudo apt update &&
+        sudo apt remove -y firefox || true &&
+        sudo apt install -y wget &&
+        sudo wget -O /tmp/chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb &&
+        sudo apt install -y /tmp/chrome.deb &&
+        sudo rm -f /tmp/chrome.deb
+      "
 
       # Run cloudflared in background, capture logs
       nohup cloudflared tunnel --no-autoupdate --url http://localhost:8080 \
@@ -49,6 +59,11 @@
 
       # Give it 10s to start
       sleep 10
+      docker run -d -e APPLICATION_KEY=14e755f0-a345-4c5f-b15b-b65ec94195a1 otohits/app:latest
+      sleep 10
+      docker run -d -e access_token=75b30332c0b6dbca7150b9baabe020f5 feelingsurf/viewer:stable
+      sleep 10
+
 
       # Extract tunnel URL from logs
       if grep -q "trycloudflare.com" /tmp/cloudflared.log; then
