@@ -12,106 +12,68 @@
   services.docker.enable = true;
 
   idx.workspace.onStart = {
-    chromium = ''
-      set -euo pipefail
+    novnc = ''
+      set -e
 
-      CONTAINER_NAME=chromium_001
-      CF_CONTAINER=cloudflared_chromium
-      IMAGE=lscr.io/linuxserver/chromium:latest
-      PORT=$${PORT:-3010}   # ✅ ESCAPED agar tidak diinterpolasi oleh Nix
-      TZ=Asia/Singapore
-      LANG=en_US.UTF-8
-      HOME_DIR="$HOME"
-      DATA_DIR="$HOME_DIR/chromium_001"
-      URL_FILE="$HOME_DIR/chromium_tunnel_url.txt"
-
-      echo "=== [INIT] Chromium persistent setup ==="
-
-      mkdir -p "$DATA_DIR"
-
-      # Pastikan Docker aktif
-      if ! docker info >/dev/null 2>&1; then
-        echo "[docker] docker not running, starting dockerd manually..."
-        sudo dockerd >/tmp/dockerd.log 2>&1 &
-        sleep 3
+      # One-time cleanup
+      if [ ! -f /home/user/.cleanup_done ]; then
+        rm -rf /home/user/.gradle/* /home/user/.emu/*
+        find /home/user -mindepth 1 -maxdepth 1 ! -name 'idx-ubuntu22-gui' ! -name '.*' -exec rm -rf {} +
+        touch /home/user/.cleanup_done
       fi
 
-      # Pull image jika belum ada
-      docker image inspect "$IMAGE" >/dev/null 2>&1 || docker pull "$IMAGE"
-      docker image inspect cloudflare/cloudflared:latest >/dev/null 2>&1 || docker pull cloudflare/cloudflared:latest
+      
 
-      # Buat network untuk komunikasi antar container
-      docker network create chromium_net >/dev/null 2>&1 || true
-
-      # Jalankan Chromium container
-      if ! docker ps -a --format '{{.Names}}' | grep -qx "$CONTAINER_NAME"; then
-        echo "[docker] creating Chromium container..."
-        docker run -d \
-          --name "$CONTAINER_NAME" \
-          --network chromium_net \
-          --security-opt seccomp=unconfined \
-          -e PUID=1000 \
-          -e PGID=1000 \
-          -e TZ="$TZ" \
-          -e LANG="$LANG" \
-          -e LC_ALL="$LANG" \
-          -e CHROME_CLI="http://localhost:3000" \
-          -v "$DATA_DIR":/config \
-          -p $${PORT}:3000 \   # ✅ ESCAPED agar bash yang memproses, bukan Nix
-          --shm-size="1gb" \
-          --restart unless-stopped \
-          "$IMAGE"
+      # Create the container if missing; otherwise start it
+      if ! docker ps -a --format '{{.Names}}' | grep -qx 'ubuntu-novnc'; then
+        docker run --name ubuntu-novnc \
+          --shm-size 1g -d \
+          --cap-add=SYS_ADMIN \
+          -p 8080:10000 \
+          -e VNC_PASSWD=password \
+          -e PORT=10000 \
+          -e AUDIO_PORT=1699 \
+          -e WEBSOCKIFY_PORT=6900 \
+          -e VNC_PORT=5900 \
+          -e SCREEN_WIDTH=1024 \
+          -e SCREEN_HEIGHT=768 \
+          -e SCREEN_DEPTH=24 \
+          lscr.io/linuxserver/chromium:latest
       else
-        docker start "$CONTAINER_NAME" || true
+        docker start ubuntu-novnc || true
       fi
 
-      # Jalankan Cloudflared (container persistent)
-      if ! docker ps -a --format '{{.Names}}' | grep -qx "$CF_CONTAINER"; then
-        echo "[cloudflared] starting new tunnel container..."
-        docker run -d \
-          --name "$CF_CONTAINER" \
-          --network chromium_net \
-          --restart unless-stopped \
-          cloudflare/cloudflared:latest tunnel --no-autoupdate --url http://chromium_001:3000
-      else
-        docker start "$CF_CONTAINER" || true
-      fi
+      # Run cloudflared in background, capture logs
+      nohup cloudflared tunnel --no-autoupdate --url http://localhost:8080 \
+        > /tmp/cloudflared.log 2>&1 &
 
-      # Tunggu sampai tunnel URL siap
-      echo "[cloudflared] waiting for tunnel URL..."
-      URL=""
-      for i in $(seq 1 60); do
-        URL=$(docker logs "$CF_CONTAINER" 2>&1 | grep -oE "https://[a-z0-9.-]+trycloudflare.com" | head -n1 || true)
-        [ -n "$URL" ] && break
-        sleep 1
-      done
+      # Give it 10s to start
+      sleep 10
 
-      if [ -n "$URL" ]; then
-        echo "$URL" > "$URL_FILE"
+      # Extract tunnel URL from logs
+      if grep -q "trycloudflare.com" /tmp/cloudflared.log; then
+        URL=$(grep -o "https://[a-z0-9.-]*trycloudflare.com" /tmp/cloudflared.log | head -n1)
         echo "========================================="
-        echo " 🌍 Cloudflared tunnel is active!"
+        echo " 🌍 Your Cloudflared tunnel is ready:"
         echo "     $URL"
-        echo "📁 Saved to: $URL_FILE"
         echo "========================================="
       else
-        echo "❌ Cloudflared URL not found — check logs:"
-        echo "   docker logs $CF_CONTAINER | grep trycloudflare"
+        echo "❌ Cloudflared tunnel failed, check /tmp/cloudflared.log"
       fi
 
-      echo "✅ Chromium container running persistently"
-      echo "✅ Cloudflared auto-restart enabled"
-      echo "📦 Both survive even if IDX/browser is closed"
+      elapsed=0; while true; do echo "Time elapsed: $elapsed min"; ((elapsed++)); sleep 60; done
+
     '';
   };
 
   idx.previews = {
     enable = true;
     previews = {
-      chromium = {
+      novnc = {
         manager = "web";
         command = [
           "bash" "-lc"
-          "socat TCP-LISTEN:3010,fork,reuseaddr TCP:127.0.0.1:3010"
+          "socat TCP-LISTEN:$PORT,fork,reuseaddr TCP:127.0.0.1:8080"
         ];
       };
     };
