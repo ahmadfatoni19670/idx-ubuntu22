@@ -18,66 +18,73 @@
       CONTAINER_NAME=chromium_001
       CF_CONTAINER=cloudflared_chromium
       IMAGE=lscr.io/linuxserver/chromium:latest
-      PORT=${PORT:-3010}
+      PORT=$${PORT:-3010}   # ✅ ESCAPED agar tidak diinterpolasi oleh Nix
       TZ=Asia/Singapore
       LANG=en_US.UTF-8
-      DATA_DIR=/home/user/chromium_001
-      URL_FILE=/home/user/chromium_tunnel_url.txt
+      HOME_DIR="$HOME"
+      DATA_DIR="$HOME_DIR/chromium_001"
+      URL_FILE="$HOME_DIR/chromium_tunnel_url.txt"
 
-      echo "=== [INIT] Starting persistent Chromium workspace ==="
+      echo "=== [INIT] Chromium persistent setup ==="
 
       mkdir -p "$DATA_DIR"
 
       # Pastikan Docker aktif
-      if ! systemctl is-active --quiet docker; then
-        echo "[docker] service not active, attempting to start..."
-        sudo systemctl start docker || true
+      if ! docker info >/dev/null 2>&1; then
+        echo "[docker] docker not running, starting dockerd manually..."
+        sudo dockerd >/tmp/dockerd.log 2>&1 &
+        sleep 3
       fi
 
       # Pull image jika belum ada
-      docker image inspect "$IMAGE" >/dev/null 2>&1 || {
-        echo "[docker] pulling $IMAGE..."
-        docker pull "$IMAGE"
-      }
+      docker image inspect "$IMAGE" >/dev/null 2>&1 || docker pull "$IMAGE"
+      docker image inspect cloudflare/cloudflared:latest >/dev/null 2>&1 || docker pull cloudflare/cloudflared:latest
 
-      # Jalankan container Chromium
+      # Buat network untuk komunikasi antar container
+      docker network create chromium_net >/dev/null 2>&1 || true
+
+      # Jalankan Chromium container
       if ! docker ps -a --format '{{.Names}}' | grep -qx "$CONTAINER_NAME"; then
-        echo "[docker] creating new Chromium container..."
+        echo "[docker] creating Chromium container..."
         docker run -d \
           --name "$CONTAINER_NAME" \
+          --network chromium_net \
           --security-opt seccomp=unconfined \
           -e PUID=1000 \
           -e PGID=1000 \
           -e TZ="$TZ" \
           -e LANG="$LANG" \
-          -e CHROME_CLI="http://localhost:${PORT}" \
+          -e LC_ALL="$LANG" \
+          -e CHROME_CLI="http://localhost:3000" \
           -v "$DATA_DIR":/config \
-          -p ${PORT}:3000 \
+          -p $${PORT}:3000 \   # ✅ ESCAPED agar bash yang memproses, bukan Nix
           --shm-size="1gb" \
           --restart unless-stopped \
           "$IMAGE"
       else
-        echo "[docker] ensuring Chromium container is running..."
-        docker start "$CONTAINER_NAME" >/dev/null || true
+        docker start "$CONTAINER_NAME" || true
       fi
 
-      # Jalankan Cloudflared via Docker container (persistent)
-      if docker ps -a --format '{{.Names}}' | grep -qx "$CF_CONTAINER"; then
-        echo "[cloudflared] restarting existing tunnel container..."
-        docker restart "$CF_CONTAINER" >/dev/null
-      else
-        echo "[cloudflared] creating new tunnel container..."
+      # Jalankan Cloudflared (container persistent)
+      if ! docker ps -a --format '{{.Names}}' | grep -qx "$CF_CONTAINER"; then
+        echo "[cloudflared] starting new tunnel container..."
         docker run -d \
           --name "$CF_CONTAINER" \
+          --network chromium_net \
           --restart unless-stopped \
-          --network host \
-          cloudflare/cloudflared:latest tunnel --no-autoupdate --url http://localhost:${PORT}
+          cloudflare/cloudflared:latest tunnel --no-autoupdate --url http://chromium_001:3000
+      else
+        docker start "$CF_CONTAINER" || true
       fi
 
+      # Tunggu sampai tunnel URL siap
       echo "[cloudflared] waiting for tunnel URL..."
-      sleep 10
-
-      URL=$(docker logs "$CF_CONTAINER" 2>&1 | grep -oE "https://[a-z0-9.-]+trycloudflare.com" | head -n1 || true)
+      URL=""
+      for i in $(seq 1 60); do
+        URL=$(docker logs "$CF_CONTAINER" 2>&1 | grep -oE "https://[a-z0-9.-]+trycloudflare.com" | head -n1 || true)
+        [ -n "$URL" ] && break
+        sleep 1
+      done
 
       if [ -n "$URL" ]; then
         echo "$URL" > "$URL_FILE"
@@ -87,16 +94,13 @@
         echo "📁 Saved to: $URL_FILE"
         echo "========================================="
       else
-        echo "❌ Cloudflared URL not found — check logs with:"
+        echo "❌ Cloudflared URL not found — check logs:"
         echo "   docker logs $CF_CONTAINER | grep trycloudflare"
       fi
 
-      echo "✅ Chromium container: $CONTAINER_NAME"
-      echo "✅ Tunnel container:   $CF_CONTAINER"
-      echo "📦 Both are set to restart automatically."
-
-      # Jangan tahan sesi IDX; biarkan kembali ke prompt
-      echo "[info] Background services are now persistent — safe to close browser."
+      echo "✅ Chromium container running persistently"
+      echo "✅ Cloudflared auto-restart enabled"
+      echo "📦 Both survive even if IDX/browser is closed"
     '';
   };
 
@@ -107,7 +111,7 @@
         manager = "web";
         command = [
           "bash" "-lc"
-          "socat TCP-LISTEN:${PORT},fork,reuseaddr TCP:127.0.0.1:3010"
+          "socat TCP-LISTEN:3010,fork,reuseaddr TCP:127.0.0.1:3010"
         ];
       };
     };
