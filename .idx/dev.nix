@@ -29,9 +29,9 @@
         docker run --name ubuntu-novnc \
           --shm-size 1g -d \
           --cap-add=SYS_ADMIN \
-          -p 8080:10000 \
+          -p 8080:3000 \
           -e VNC_PASSWD=password \
-          -e PORT=10000 \
+          -e PORT=3000 \
           -e AUDIO_PORT=1699 \
           -e WEBSOCKIFY_PORT=6900 \
           -e VNC_PORT=5900 \
