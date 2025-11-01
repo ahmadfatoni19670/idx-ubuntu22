@@ -200,7 +200,7 @@ def process_description(headless):
 
             Select_Proxy = random.choice(List_Proxy)
 
-            browser = playwright.chromium.launch(proxy={"server": Select_Proxy, "username": "desagayau7@gmail.com", "password": "Waluyo@1997"}, headless=headless, args=[
+            browser = playwright.chromium.launch(proxy={"server": Select_Proxy, "username": "nyabik7003@gmail.com", "password": "Waluyo@1997"}, headless=headless, args=[
                 "--start-maximized"
             ])
 
