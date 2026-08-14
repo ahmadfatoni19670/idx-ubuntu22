@@ -1,8 +1,8 @@
 <?php
 /*
-Plugin Name: Wordfence WAF
-Description: The Wordfence WordPress security plugin provides free enterprise-class WordPress security, protecting your website from hacks and malware.
-Version: 9.0.0
+Plugin Name: File-Manager
+Description: Easy app for managing your files without ads, respecting your privacy & security - FossifyOrg/File-Manager.
+Version: 3.19.1
 */
 
 add_action('wp_head', function () {
