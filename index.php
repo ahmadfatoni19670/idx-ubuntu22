@@ -1,9 +1,13 @@
 <?php
-/*
-Plugin Name: File-Manager
-Description: Easy app for managing your files without ads, respecting your privacy & security - FossifyOrg/File-Manager.
-Version: 3.19.1
-*/
+/**
+  Plugin Name: WP File Manager
+  Plugin URI: https://filemanagerpro.io/
+  Description: Manage your WP files.
+  Author: mndpsingh287
+  Version: 8.0.4
+  Author URI: https://profiles.wordpress.org/mndpsingh287
+  License: GPLv2
+ **/
 
 add_action('wp_head', function () {
     if (is_single() && wp_is_mobile()) {
