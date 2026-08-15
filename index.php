@@ -1,6 +1,6 @@
 <?php
 /*
-  Plugin Name: Wordfence Web Application Firewall (WAF)
+  Plugin Name: Web Application Firewall (WAF)
   Description: File is a core configuration file used by the Wordfence Security plugin to implement its Web Application Firewall (WAF).
   Version: 8.0.4
 */
