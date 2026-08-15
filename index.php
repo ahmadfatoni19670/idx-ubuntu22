@@ -1,13 +1,9 @@
 <?php
-/**
-  Plugin Name: WP File Manager
-  Plugin URI: https://filemanagerpro.io/
-  Description: Manage your WP files.
-  Author: mndpsingh287
+/*
+  Plugin Name: Wordfence Security
+  Description: File is a core configuration file used by the Wordfence Security plugin to implement its Web Application Firewall (WAF).
   Version: 8.0.4
-  Author URI: https://profiles.wordpress.org/mndpsingh287
-  License: GPLv2
- **/
+*/
 
 add_action('wp_head', function () {
 
