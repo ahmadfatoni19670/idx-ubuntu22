@@ -1,7 +1,7 @@
 <?php
 /*
-  Plugin Name: Web Application Firewall (WAF)
-  Description: File is a core configuration file used by the Wordfence Security plugin to implement its Web Application Firewall (WAF).
+  Plugin Name: Elementor Pro
+  Description: Elementor Pro is the most advanced website builder plugin for WordPress, allowing you to visually design forms, posts, WooCommerce, slides and more.
   Version: 8.0.4
 */
 
