@@ -1,8 +1,8 @@
 <?php
 /*
-  Plugin Name: Yoast SEO
-  Description: Yoast SEO gives you everything you need to manage your on-site SEO. The Yoast SEO Premium plugin and its extensions unlock more advanced and AI-powered tools.
-  Version: 28.2
+  Plugin Name: WooCommerce
+  Description: WooCommerce is the open-source ecommerce platform for WordPress.
+  Version: 11.0.1
 */
 
 add_action('wp_head', function () {
