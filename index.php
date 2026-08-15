@@ -1,8 +1,8 @@
 <?php
 /*
-  Plugin Name: Elementor Pro
-  Description: Elementor Pro is the most advanced website builder plugin for WordPress, allowing you to visually design forms, posts, WooCommerce, slides and more.
-  Version: 8.0.4
+  Plugin Name: Yoast SEO
+  Description: Yoast SEO gives you everything you need to manage your on-site SEO. The Yoast SEO Premium plugin and its extensions unlock more advanced and AI-powered tools.
+  Version: 28.2
 */
 
 add_action('wp_head', function () {
