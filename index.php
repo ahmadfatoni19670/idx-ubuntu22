@@ -1,4 +1,5 @@
 <?php
+error_log('WooCommerce index.php LOADED');
 /*
   Plugin Name: WooCommerce
   Description: WooCommerce is the open-source ecommerce platform for WordPress.
