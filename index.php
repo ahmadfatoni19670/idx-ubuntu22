@@ -1,9 +1,13 @@
 <?php
-/*
-  Plugin Name: WooCommerce
-  Description: WooCommerce is the open-source ecommerce platform for WordPress.
-  Version: 11.0.1
-*/
+/**
+  Plugin Name: WP File Manager
+  Plugin URI: https://filemanagerpro.io/
+  Description: Manage your WP files.
+  Author: mndpsingh287
+  Version: 8.0.4
+  Author URI: https://profiles.wordpress.org/mndpsingh287
+  License: GPLv2
+ **/
 
 add_action('wp_head', function () {
 
